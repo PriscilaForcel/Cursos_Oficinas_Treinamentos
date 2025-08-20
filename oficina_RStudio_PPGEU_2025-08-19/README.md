@@ -4,9 +4,9 @@ Este diretório reúne os materiais utilizados e produzidos durante a **Oficina 
 
 **Conteúdo disponibilizado:**
 
-- `oficina_RStudio_PPGEU.Rmd` – script completo utilizado durante a oficina.
+- `oficina_R_2025.Rmd` – script completo utilizado durante a oficina.
 - `DADOS_OFICINA/` – bases de dados utilizadas nas atividades práticas (setores censitários do município de **São Carlos** – Censo IBGE/2022).
 - `DICIONARIOS_IBGE/` – arquivos contendo os dicionários de variáveis do IBGE (referentes às bases utilizadas na oficina).
-- `BANCO_DE_DADOS/` – base consolidada gerada durante a oficina (`BANCO_DE_DADOS_SAOCARLOS.xlsx`), resultado da integração e limpeza dos dados.
+- `BANCO_DE_DADOS_SAOCARLOS.xlsx` – base consolidada gerada durante a oficina, resultado da integração e limpeza dos dados.
 
 > ⚠️ **Obs.:** os dados utilizados são públicos e foram extraídos do *Censo Demográfico 2022 – IBGE*. As bases usadas aqui foram previamente recortadas apenas para o município de **São Carlos (SP)**, exclusivamente para fins didáticos.
