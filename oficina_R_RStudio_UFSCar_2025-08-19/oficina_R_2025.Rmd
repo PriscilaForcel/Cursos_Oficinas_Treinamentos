@@ -1,0 +1,270 @@
+---
+title: "Oficina de R _ PPGEU/UFSCar"
+author: "Priscia Kauana Barelli Forcel"
+date: "2025-08-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# ==== Instalação e carregamento de pacotes ====
+
+```{r}
+#Instalando os pacotes
+
+#INSTALAR SÓ SE NUNCA INSTALOU...
+
+install.packages("knitr")
+install.packages("readxl")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("openxlsx")
+```
+
+
+```{r}
+#Carregando os pacotes
+
+#SEMPRE CARREGAR OS PACOTES QUANDO ABRIR O R...
+
+library(readxl) #Leitura de arquivos em Excel
+library(dplyr) #Manipulação de dados
+library(tidyr) #Manipulação de dados
+library(openxlsx)#Exportar em excel
+```
+
+###### Função para limpar colunas com "X" e converter para numérico ====
+
+```{r}
+limpar_colunas_x <- function(df, colunas) {
+  df %>%
+    mutate(across(all_of(colunas), ~ as.numeric(replace(., . == "X", "0"))))
+}
+```
+
+
+# ==== Importação dos dados + Limpeza e transformação ====
+
+```{r}
+#PARA ABRIR A PLANILHA QUE CONTEM A RELAÇÃO ENTRE O CÓDIGO DO SETOR E O CÓDIGO DO MUNICÍPIO
+#PLANILHA: Agregados_por_setores_basico.xlsx
+
+setor_basico <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_basico_SAOCARLOS_20250417.xlsx") %>% 
+  select(CD_SETOR, SITUACAO, CD_SIT, CD_MUN, NM_MUN, CD_DIST, NM_DIST, v0007)
+
+# Para transformar o código do Setor Censitário de número para texto
+setor_basico$CD_SETOR <- as.character(setor_basico$CD_SETOR)
+
+```
+
+
+```{r}
+# OBSERVAÇÃO: esse arquivo foi previamente limpo no Excel, a qual selecionei só os setores censitários de São Carlos
+
+domicilios01 <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_caracteristicas_domicilio1_SAOCARLOS.xlsx") %>% select(CD_SETOR, V00001, V00047, V00070)
+
+# Para transformar o código do Setor Censitário de número para texto
+domicilios01$CD_SETOR <- as.character(domicilios01$CD_SETOR)
+
+
+# NO ARQUIVO ORIGINAL DO IBGE O 'CD_setor' está escrito de forma diferente dos outros... se atentar a isso...
+# Na hora de unir todos os arquivos, eles precisam estar com o mesmo nome o "CD_SETOR"...
+```
+
+```{r}
+# OBSERVAÇÃO: esse arquivo foi previamente limpo no Excel, a qual selecionei só os setores censitários de São Carlos
+
+domicilios02 <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_caracteristicas_domicilio2_SAOCARLOS_20250417.xlsx") %>% select(CD_SETOR, V00111, V00112, V00113, V00114, V00115, V00116, V00117, V00118)
+
+# Para transformar o código do Setor Censitário de número para texto
+domicilios02 $CD_SETOR <- as.character(domicilios02$CD_SETOR)
+```
+
+```{r}
+# OBSERVAÇÃO: esse arquivo foi previamente limpo no Excel, a qual selecionei só os setores censitários de São Carlos
+
+demografia <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_demografia_SAOCARLOS.xlsx") %>% select(CD_SETOR, V01006, V01007, V01008, V01031, V01032, V01033, V01034, V01035, V01036, V01037, V01038, V01039, V01040, V01041)
+
+# Para transformar o código do Setor Censitário de número para texto
+demografia$CD_SETOR <- as.character(demografia$CD_SETOR)
+```
+
+```{r}
+# OBSERVAÇÃO: esse arquivo foi previamente limpo no Excel, a qual selecionei só os setores censitários de São Carlos
+
+parentesco <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_parentesco_SAOCARLOS.xlsx") %>% select(CD_SETOR, V01062, V01063)
+
+# Para transformar o código do Setor Censitário de número para texto
+parentesco$CD_SETOR <- as.character(parentesco$CD_SETOR)
+```
+
+```{r}
+# OBSERVAÇÃO: esse arquivo foi previamente limpo no Excel, a qual selecionei só os setores censitários de São Carlos
+
+entorno <- read_excel("DADOS_OFICINA/SAO_CARLOS/Agregados_por_setores_entorno_domicílios_SAOCARLOS.xlsx") %>% select(CD_SETOR, V05006, V05007, V05015, V05016, V05017)
+
+# Para transformar o código do Setor Censitário de número para texto
+entorno$CD_SETOR <- as.character(entorno$CD_SETOR)
+```
+
+
+# ==== União dos dados ====
+
+```{r}
+# padronizar a chave como character
+setor_basico  <- setor_basico  %>% mutate(CD_SETOR = as.character(CD_SETOR))
+domicilios01  <- domicilios01  %>% mutate(CD_SETOR = as.character(CD_SETOR))
+domicilios02  <- domicilios02  %>% mutate(CD_SETOR = as.character(CD_SETOR))
+demografia    <- demografia    %>% mutate(CD_SETOR = as.character(CD_SETOR))
+parentesco    <- parentesco    %>% mutate(CD_SETOR = as.character(CD_SETOR))
+entorno       <- entorno       %>% mutate(CD_SETOR = as.character(CD_SETOR))
+
+```
+
+```{r}
+# CRIAR ARQUIVO: 'BANCO_DE_DADOS_SAOCARLOS' que vai agrupar primeiras planilhas
+
+BANCO_DE_DADOS_SAOCARLOS <- setor_basico %>%
+  left_join(domicilios01, by = "CD_SETOR") %>%
+  left_join(domicilios02, by = "CD_SETOR") %>%
+  left_join(demografia,   by = "CD_SETOR") %>%
+  left_join(parentesco,   by = "CD_SETOR") %>%
+  left_join(entorno,      by = "CD_SETOR")
+```
+
+
+#==== Limpeza das colunas com "X" ====
+
+```{r}
+colunas_para_limpar <- c("v0007", "V00001", "V00047", "V00070", "V00111", "V00112", "V00113", "V00114", "V00115", "V00116", "V00117", "V00118", "V01006", "V01007", "V01008", "V01031", "V01032", "V01033", "V01034", "V01035", "V01036", "V01037", "V01038", "V01039", "V01040", "V01041", "V01062", "V01063", "V05006", "V05007", "V05015", "V05016", "V05017")
+
+BANCO_DE_DADOS_SAOCARLOS <- limpar_colunas_x(BANCO_DE_DADOS_SAOCARLOS, colunas_para_limpar)
+```
+
+
+# ==== Somas das variávies ====
+
+```{r}
+# Soma das variáveis de Pessoas do sexo MASCULINO + Pessoas do sexo FEMININO
+
+BANCO_DE_DADOS_SAOCARLOS$pessoastotal <- rowSums(BANCO_DE_DADOS_SAOCARLOS[c("V01007", "V01008")], na.rm = TRUE)
+
+```
+
+
+# ==== Renomear variáveis ====
+
+```{r}
+#RENOMEAR AS VARIÁVEIS
+
+BANCO_DE_DADOS <- BANCO_DE_DADOS_SAOCARLOS %>%
+  rename(
+    V00001_DPP_OCUPADO = V00001,
+    V00047_DPPO_casa = V00047,
+    V00070_DPPO_Qtd_moradores = V00070,
+    V00111_DPPO_RedeGeral = V00111,
+    V00112_DPPO_PoçoProfundo = V00112,
+    V00113_DPPO_PoçoRaso = V00113,
+    V00114_DPPO_Nascente = V00114,
+    V00115_DPPO_CarroPipa = V00115,
+    V00116_DPPO_Chuva = V00116,
+    V00117_DPPO_Rios = V00117,
+    V00118_DPPO_OutraForma = V00118,
+    V01006_QuantidadeMoradores = V01006,
+    V01007_Masculino = V01007,
+    V01008_Feminino = V01008,
+    V01031_0a4anos = V01031,
+    V01032_5a9anos = V01032,
+    V01033_10a14anos = V01033,
+    V01034_15a19anos = V01034,
+    V01035_20a24anos = V01035,
+    V01036_25a29anos = V01036,
+    V01037_30a39anos = V01037,
+    V01038_40a49anos = V01038,
+    V01039_50a59anos = V01039,
+    V01040_60a69anos = V01040,
+    V01041_70anosoumais = V01041,
+    V01062_PessoaResponsDom_Masculino = V01062,
+    V01063_PessoaResponsDom_Feminino = V01063,
+    V05006_DomCOM_VIA_PAVIMENTADA = V05006,
+    V05007_DomSEM_VIA_PAVIMENTADA = V05007,
+    V05015_DomCOM_PONTO_DE_ONIBUS = V05015,
+    V05016_DomSEM_PONTO_DE_ONIBUS = V05016,
+    V05017_Dom_PONTO_DE_ONIBUS_NAODECLARADO = V05017
+  )
+```
+
+# ==== Exportar o banco de dados ====
+
+```{r}
+# Exportar em planilha excel. 
+write.xlsx(BANCO_DE_DADOS, "BANCO_DE_DADOS_SAOCARLOS.xlsx")
+```
+
+# ==== Análise básica ====
+
+```{r}
+library(ggplot2)
+
+ggplot(BANCO_DE_DADOS, aes(x = V00047_DPPO_casa, y = V01006_QuantidadeMoradores)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", col = "blue") +
+  labs(title = "Relação entre número de casas e moradores",
+       x = "Número de casas",
+       y = "Número de moradores")
+```
+
+
+```{r}
+# 1. Qual setor censitário tem mais crianças de 0 a 4 anos?
+
+ggplot(BANCO_DE_DADOS, aes(x = factor(CD_SETOR), y = V01031_0a4anos)) +
+  geom_col(fill = "steelblue") +
+  labs(
+    title = "Quantidade de Crianças por Setor Censitário",
+    x = "Setor Censitário",
+    y = "Crianças de 0 a 4 anos"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))  # gira o texto do eixo X
+
+```
+
+```{r}
+library(dplyr)
+
+tabela_criancas <- BANCO_DE_DADOS %>%
+  select(CD_SETOR, V01031_0a4anos) %>%
+  arrange(desc(V01031_0a4anos))
+
+print(tabela_criancas)
+
+```
+
+```{r}
+# 2. Qual setor censitário tem mais responsáveis do domicílio do sexo feminino?
+
+max_fem_responsavel <- BANCO_DE_DADOS %>%
+  filter(!is.na(V01063_PessoaResponsDom_Feminino)) %>%
+  arrange(desc(V01063_PessoaResponsDom_Feminino)) %>%
+  slice(1) %>%
+  select(CD_SETOR, V01063_PessoaResponsDom_Feminino)
+
+max_fem_responsavel
+
+```
+
+```{r}
+# 3. Qual setor censitário tem mais responsáveis do domicílio do sexo masculino?
+
+max_masc_responsavel <- BANCO_DE_DADOS %>%
+  filter(!is.na(V01062_PessoaResponsDom_Masculino)) %>%
+  arrange(desc(V01062_PessoaResponsDom_Masculino)) %>%
+  slice(1) %>%
+  select(CD_SETOR, V01062_PessoaResponsDom_Masculino)
+
+max_masc_responsavel
+
+```
