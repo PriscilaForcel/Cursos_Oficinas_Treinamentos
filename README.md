@@ -10,13 +10,12 @@ As atividades contemplam diferentes ferramentas e metodologias, com ênfase na m
 
 ## 📚 Cursos, oficinas e treinamentos
 
-| Data | Atividade | Ferramentas e conteúdos | Materiais |
-|---|---|---|---|
-| 19/08/2025 | Oficina de Introdução ao R e RStudio – PPGEU/UFSCar | R, RStudio, importação e manipulação de dados | [Acessar materiais](./oficina_RStudio_PPGEU_2025-08-19) |
-| 18/11/2026 | Workshop de Manipulação de Dados do Censo Demográfico 2022 – Minas Gerais | Python, Google Colab, Pandas e dados censitários | [Acessar materiais](./workshop_Censo2022_MG_2026-11-18) |
+| Data | Atividade | Instituição | Ferramentas e conteúdos | Materiais |
+|---|---|---|---|---|
+| 19/08/2025 | Oficina de Introdução ao R e RStudio | PPGEU/UFSCar | R, RStudio, importação e manipulação de dados | [Acessar materiais](./oficina_R_RStudio_UFSCar_2025-08-19) |
+| 18/11/2026 | Análise de dados urbanos com o Censo Demográfico 2022 no Google Colab: estatística, visualização e mapas | DAU/UFV | Python, Pandas, NumPy, GeoPandas, Folium e análise espacial | [Acessar materiais](./workshop_Censo2022_UFV_2026-11-18) |
 
-*Novas atividades e materiais serão adicionados conforme sua realização e disponibilização.*
-
+*Os materiais são disponibilizados progressivamente, conforme a preparação e realização das atividades.*
 ---
 
 ## 🗂️ Organização do repositório
